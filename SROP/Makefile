@@ -1,15 +1,19 @@
-CC      = gcc
-CFLAGS  = -s
-RM      = rm -f
-PROG    = srop.c
-OUT     = prog
+TARGET = prog
+CC = nasm
+CFLAGS = -f elf64
+LD = ld
+PROG = SROP.asm
+OBJECT = SROP.o
 
-default: all
+default: $(TARGET)
+all: default
 
-all: Build
+$(OBJECT):
+	$(CC) $(CFLAGS) $(PROG)
 
-Build: srop.c
-	$(CC) $(CFLAGS) -o srop.s -c $(PROG)
+$(TARGET): $(OBJECT)
+	$(LD) $(OBJECT) -o $@
 
 clean:
-	$(RM) prog srop.s
+	rm -f *.o
+	rm -f $(TARGET)
