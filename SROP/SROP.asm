@@ -1,6 +1,6 @@
 BITS 64
 
-		;org 0x402000
+		org 0x401000
 
 ehdr:							; ELF64_Ehdr
 		db	0x7f, "ELF", 2, 1, 1, 0		;e_ident = 0x7ELF, 64-bit, little endian, Current Version
@@ -33,7 +33,7 @@ phdr:							; ELF64_Phdr
 
 phdrsize	equ	$ - phdr			;calculate phdrsize
 
-	section .data  ;was .data
+	section .data
 flag:	db	"/bin/sh", 0
 
 	global	_start
@@ -42,22 +42,18 @@ flag:	db	"/bin/sh", 0
 _read:
 	push	rbp
 	mov	rbp, rsp
-	lea	rax, [rbp-32]
 	mov	edx, 0x200
-	mov	rsi, rax
+	lea	rsi, [rbp-32]
 	mov	edi, 0
 	xor	rax, rax
 	syscall
-	xor	rax, rax
 	pop	rbp
 	ret
 
 _start:
 	push	rbp
 	mov	rbp, rsp
-	mov	eax, 0x0
 	call	_read
-	xor	rax, rax
 	mov	rax, 0x3c
 	syscall
 	pop	rax

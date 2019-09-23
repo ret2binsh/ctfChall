@@ -7,7 +7,7 @@ default: $(TARGET)
 all: default
 
 $(TARGET):
-	$(CC) $(CFLAGS) -o $(TARGET) $(PROG)
+	$(CC) $(CFLAGS) -o $(TARGET) $(PROG) && chmod +x $(TARGET)
 
 clean:
 	rm -f *.o
