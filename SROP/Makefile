@@ -1,18 +1,13 @@
 TARGET = prog
 CC = nasm
-CFLAGS = -f elf64
-LD = ld
+CFLAGS = -f bin
 PROG = SROP.asm
-OBJECT = SROP.o
 
 default: $(TARGET)
 all: default
 
-$(OBJECT):
-	$(CC) $(CFLAGS) $(PROG)
-
-$(TARGET): $(OBJECT)
-	$(LD) $(OBJECT) -o $@
+$(TARGET):
+	$(CC) $(CFLAGS) -o $(TARGET) $(PROG)
 
 clean:
 	rm -f *.o

