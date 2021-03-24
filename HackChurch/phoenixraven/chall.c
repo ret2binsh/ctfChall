@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 
 void flag()
 {
 	int fd;
+	int out;
+	char flag[64];
 	fd = open("flag.txt", O_RDONLY);
-	char c;
-	while (read(fd, &c, 1))
-		printf("%c",c);
+	memset(flag, '\0', 64);
+	out = read(fd, flag, 63);
+	for (int i=0; i<out; i++)
+		flag[i] = flag[i] ^ 0x7c;
+	printf("%s\n",flag);
 	close(fd);
 }
 
@@ -26,5 +31,3 @@ int main()
 
 	return 0;
 }
-
-
